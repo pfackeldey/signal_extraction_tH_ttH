@@ -3,7 +3,7 @@ import os, shlex
 from subprocess import Popen, PIPE
 
 
-# python test/commands_makeplots_SR_legacy.py --cards_dir /home/acaan/CMSSW_10_2_13/src/cards_set/legacy_11April20_unblinded --odir /home/acaan/CMSSW_10_2_13/src/cards_set/legacy_11April20_unblinded/results_postfit_SR --fitDiagnosis /home/acaan/CMSSW_10_2_13/src/cards_set/legacy_11April20_unblinded/results/fitDiagnostics_shapes_combine_combo_ttHmultilep_cminDefaultMinimizerStrategy0robustHesse_MINIMIZER_analytic.root --unblided --doPostFit
+# python test/commands_makeplots_SR_legacy.py --cards_dir /home/acaan/CMSSW_10_2_13/src/cards_set/legacy_22June20_unblinded/ --odir /home/acaan/CMSSW_10_2_13/src/cards_set/legacy_22June20_unblinded/postfit_plots --fitDiagnosis /home/acaan/CMSSW_10_2_13/src/cards_set/legacy_22June20_unblinded/results/fitDiagnosticsrobusthesse.root --unblided --doPostFit
 from optparse import OptionParser
 parser = OptionParser()
 parser.add_option(
@@ -26,6 +26,20 @@ parser.add_option(
     help="Full path of fitDiagnosis.root"
     )
 parser.add_option(
+    "--fitDiagnosis_ITC",
+    type="string",
+    dest="fitDiagnosis_ITC",
+    help="Full path of fitDiagnosis_ITC.root",
+    default="none"
+    )
+parser.add_option(
+    "--do_channel",
+    type="string",
+    dest="do_channel",
+    help="FDo only this channel",
+    default="none"
+    )
+parser.add_option(
     "--unblided",
     action="store_true",
     dest="unblided",
@@ -40,12 +54,20 @@ parser.add_option(
     default=False
     )
 parser.add_option(
+    "--doITC",
+    action="store_true",
+    dest="doITC",
+    help="Self explanatory",
+    default=False
+    )
+parser.add_option(
     "--fromHavester",
     action="store_true",
     dest="fromHavester",
     help="Self explanatory",
     default=False
     )
+
 (options, args) = parser.parse_args()
 
 print ()
@@ -62,21 +84,25 @@ cards_dir    = options.cards_dir
 doPostFit    = options.doPostFit
 unblided     = options.unblided
 fromHavester = options.fromHavester
+doITC        = options.doITC
+do_channel   = options.do_channel
+fitDiagnosis_ITC = options.fitDiagnosis_ITC
 
 if odir == "none" :
     odir = cards_dir + "/plots"
 run_cmd("mkdir %s"  % (odir))
 
-eras = [ 2016, 2017, 2018, 0 ] #
+eras = [  2018] # 0 , 2016, 2017,
 
-"""
+cards_to_do = {
         "ttH_0l_2tau_ERA"         : {
             "original"          : "ttH_0l_2tau_ERA", # name of the datacard(.txt/.root) to take binX templates
             "binToReadOriginal" : "ttH_0l_2tau",               # if the datacard(.txt/.root) has a subfolder this is the name of the subfolder
             "IHEP"              : False ,                      # True if the datacard(.txt/.root) has no subfolder
             "channel"           : "0l_2tau",                   # to take the plot options of the options_plot_ranges function on configs/plot_options.py
             "binToRead"         : "ttH_0l_2tau_ERA",           # bin inside the fitDiagnosis, assumes that you use test/combine_cards_legacy_CR.py to merge cards before doing it
-            "nameLabel"         : "none"                       # if you want to overwrite the option on plot options of the options_plot_ranges function on configs/plot_options.py
+            "nameLabel"         : "none",                      # if you want to overwrite the option on plot options of the options_plot_ranges function on configs/plot_options.py
+            "fitDiagnosis_ITC"  : "none"
         },
         "ttH_1l_1tau_ERA"         : {
             "original"          : "ttH_1l_1tau_ERA",
@@ -84,7 +110,8 @@ eras = [ 2016, 2017, 2018, 0 ] #
             "IHEP"              : False ,
             "channel"           : "1l_1tau",
             "binToRead"         : "ttH_1l_1tau_ERA",
-            "nameLabel"         : "none"
+            "nameLabel"         : "none",
+            "fitDiagnosis_ITC"  : "none"
         },
         "ttH_1l_2tau_ERA"         : {
             "original"          : "ttH_1l_2tau_ERA",
@@ -92,7 +119,8 @@ eras = [ 2016, 2017, 2018, 0 ] #
             "IHEP"              : False ,
             "channel"           : "1l_2tau",
             "binToRead"         : "ttH_1l_2tau_ERA",
-            "nameLabel"         : "none"
+            "nameLabel"         : "none",
+            "fitDiagnosis_ITC"  : "none"
         },
         "ttH_2los_1tau_ERA"         : {
             "original"          : "ttH_2los_1tau_ERA",
@@ -100,28 +128,32 @@ eras = [ 2016, 2017, 2018, 0 ] #
             "IHEP"              : False ,
             "channel"           : "2los_1tau",
             "binToRead"         : "ttH_2los_1tau_ERA",
-            "nameLabel"         : "none"
+            "nameLabel"         : "none",
+            "fitDiagnosis_ITC"  : "none"
         },
         "tH_2l_2tau_ERA"           : {
             "original"  : "none" ,
             "channel"   : "2l_2tau",
             "IHEP"      : False ,
             "binToRead" : "ttH_2l_2tau_ERA",
-            "nameLabel" : "none"
+            "nameLabel" : "none",
+            "fitDiagnosis_ITC"  : "none"
         },
         "ttH_3l_1tau_ERA"          : {
             "original"  : "none" ,
             "channel"   : "3l_1tau",
             "IHEP"      : False ,
             "binToRead" : "ttH_3l_1tau_ERA",
-            "nameLabel" : "none"
+            "nameLabel" : "none",
+            "fitDiagnosis_ITC"  : "none"
         },
         "ttH_4l_ERA"          : {
             "original"  : "none" ,
             "channel"   : "4l_0tau",
             "IHEP"      : False ,
             "binToRead" : "ttH_4l_ERA",
-            "nameLabel" : "none"
+            "nameLabel" : "none",
+            "fitDiagnosis_ITC"  : "none"
         },
         "ttH_cr_3l_ERA_cr"   : {
             #"cards_to_merge"      : ["ttH_cr_3l_ERA_eee_cr", "ttH_cr_3l_ERA_eem_cr", "ttH_cr_3l_ERA_emm_cr", "ttH_cr_3l_ERA_mmm_cr"],
@@ -129,7 +161,8 @@ eras = [ 2016, 2017, 2018, 0 ] #
             "original"            : "none" ,
             "IHEP"                : False ,
             "binToRead"           : "none",
-            "nameLabel"           : "none"
+            "nameLabel"           : "none",
+            "fitDiagnosis_ITC"    : "none"
         },
         "ttH_cr_4l_ERA"   : {
             #"cards_to_merge"      : ["ttH_cr_3l_ERA_eee_cr", "ttH_cr_3l_ERA_eem_cr", "ttH_cr_3l_ERA_emm_cr", "ttH_cr_3l_ERA_mmm_cr"],
@@ -203,10 +236,6 @@ eras = [ 2016, 2017, 2018, 0 ] #
             "binToRead"           : "none",
             "nameLabel"           : "none"
         },
-
-
-"""
-cards_to_do = {
         "ttH_1l_1tau_ERA"         : {
             "original"          : "ttH_1l_1tau_ERA",
             "binToReadOriginal" : "ttH_1l_1tau",
@@ -228,6 +257,10 @@ cards_to_do = {
 
 for era in eras :
     for key in cards_to_do :
+        if doITC and not ( "3l_0tau" in key or "2lss_0tau" in key or "2lss_1tau" in key) :
+            continue
+        if not do_channel == "none" and not do_channel in key :
+            continue
         print (key, era)
         eraDraw = str(era)
         if era == 0 :
@@ -255,6 +288,9 @@ for era in eras :
             cmd += "--nameLabel \"%s\" " % cards_to_do[key]["nameLabel"]
         if fromHavester :
             cmd += "--fromHavester "
+        # # --tH_separate --input_ITC fitDiagnosis_ITC
+        if not fitDiagnosis_ITC == "none" :
+            cmd += " --tH_separate --input_ITC %s " % fitDiagnosis_ITC
         #print (cmd)
         output = run_cmd(cmd)
         ff = open("%s/%s.log" % (odir, key.replace("ERA", str(era))) ,"w+")

@@ -285,7 +285,7 @@ if not options.original == "none" :
     datahist = fileorriginal.Get(readFrom + "data_obs")
 else :
     if not binToRead == "none" :
-        if len(list_cats) == 0 :
+        if len(list_cats) == 1 :
             catcats = [binToRead] #[folder]
         else :
             if not options.era == 0 :
@@ -312,6 +312,7 @@ else :
             readFrom += "_prefit"
         hist = fin[0].Get(readFrom + "/" + name_total )
         print ("reading shapes", readFrom + "/" + name_total)
+        print (hist.Integral())
         nbinscat =  GetNonZeroBins(hist)
         nbinscatlist += [nbinscat]
         print (readFrom, nbinscat)
@@ -515,8 +516,8 @@ if HH :
             fin,
             divideByBinWidth,
             #"signal_ggf_nonresonant_hh_bbvvSM",
-            #"signal_ggf_nonresonant_hh_bbvv_slkl_1p00",
-            "signal_ggf_spin0_900_hh_bbvv_sl",
+            "signal_ggf_nonresonant_hh_bbvv_slkl_1p00",
+            #"signal_ggf_spin0_900_hh_bbvv_sl",
             lastbin,
             do_bottom,
             labelX,
@@ -549,8 +550,8 @@ if HH :
             fin,
             divideByBinWidth,
             #"signal_ggf_nonresonant_hh_bbttSM",
-            #"signal_ggf_nonresonant_hh_bbttkl_1p00",
-            "signal_ggf_spin0_900_hh_bbtt",
+            "signal_ggf_nonresonant_hh_bbttkl_1p00",
+            #"signal_ggf_spin0_900_hh_bbtt",
             lastbin,
             do_bottom,
             labelX,
@@ -581,8 +582,8 @@ if HH :
             fin,
             divideByBinWidth,
             #"signal_ggf_nonresonant_hh_bbttSM",
-            #"signal_ggf_nonresonant_hh_bbvvkl_1p00",
-            "signal_ggf_spin0_900_hh_bbvv",
+            "signal_ggf_nonresonant_hh_bbvvkl_1p00",
+            #"signal_ggf_spin0_900_hh_bbvv",
             lastbin,
             do_bottom,
             labelX,
