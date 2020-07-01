@@ -8,7 +8,6 @@ from tasks.base import CHBase
 class CombDatacards(CHBase):
 
     input_cards = law.CSVParameter(
-        default="/net/scratch/cms/dihiggs/store/bbww_dl/Run2_pp_13TeV_2017/DatacardProducer/dev1/jet1_pt/ee/datacard.txt,/net/scratch/cms/dihiggs/store/bbww_dl/Run2_pp_13TeV_2017/DatacardProducer/dev1/jet1_pt/mumu/datacard.txt",
         description="Path to input datacards, comma seperated:"
         "e.g.: '/path/to/card1.txt,/path/to/card2.txt,...'",
     )
