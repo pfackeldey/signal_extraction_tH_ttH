@@ -55,11 +55,12 @@ class CMSSWSandboxTask(law.SandboxTask):
 
 class CHBase(AnalysisTask, CMSSWSandboxTask):
 
-    channels = law.CSVParameter(default=("ee", "emu", "mumu"))
-
     mass = luigi.Parameter(default="125")
 
     stable_options = r"--cminDefaultMinimizerType Minuit2 --cminDefaultMinimizerStrategy 0 --cminFallbackAlgo Minuit2,0:1.0"
+
+    def store_parts(self):
+        return super(CHBase, self).store_parts() + (self.mass,)
 
     @property
     def cmd(self):
@@ -67,14 +68,9 @@ class CHBase(AnalysisTask, CMSSWSandboxTask):
 
     def run(self):
         self.output().parent.touch()
-        with self.publish_step(
-            law.util.colored("{}:".format(self.cmd), color="light_cyan")
-        ):
+        with self.publish_step(law.util.colored("{}:".format(self.cmd), color="light_cyan")):
             for line in law.util.readable_popen(
-                self.cmd,
-                shell=True,
-                executable="/bin/bash",
-                cwd=self.output().parent.path,
+                self.cmd, shell=True, executable="/bin/bash", cwd=self.output().parent.path,
             ):
                 if isinstance(line, str):
                     print(line)
