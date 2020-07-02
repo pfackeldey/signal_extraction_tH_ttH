@@ -75,6 +75,7 @@ action() {
           pip install --ignore-installed --no-cache-dir --prefix "$EXTERNAL_CMSSW" "$@"
       }
       cmssw_install_pip tqdm
+      cmssw_install_pip mplhep
       LAW_INSTALL_EXECUTABLE=env cmssw_install_pip git+https://github.com/riga/law.git --no-binary law
       touch "$EXTERNAL_CMSSW/.good"
   fi
